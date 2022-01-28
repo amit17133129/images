@@ -238,3 +238,41 @@ Here how rules.yml file look alike.
 
 Now we have alert manager prometheus configuration  ready. We will update the respective changes in the alertmanager server.
 
+We need to have rule for slack noth=fications in respective channel. Add below code in alertmanager.yml file in the alertmanager server.
+```
+
+global:
+      resolve_timeout: 5m
+      slack_api_url: https://hooks.slack.com/services/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
+route:
+      group_by: ['job']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+      receiver: 'null'
+      routes:
+      - match:
+          alertname: DeadMansSwitch
+        receiver: 'null'
+      - match:
+        receiver: 'slack'
+        continue: true
+receivers:
+    - name: 'null'
+    - name: 'slack'
+      slack_configs:
+      - channel: 'alertmgr-stg-alerts'
+        send_resolved: true
+        title: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] Monitoring Event Notification'
+        text: >-
+          {{ range .Alerts }}
+            Alert: {{ .Annotations.summary }} - `{{ .Labels.severity }}`
+            Description: {{ .Annotations.description }}
+            Graph: <{{ .GeneratorURL }}|> Runbook: <{{ .Annotations.runbook }}|>
+            Details:
+            {{ range .Labels.SortedPairs }} • {{ .Name }}: `{{ .Value }}`
+            {{ end }}
+          {{ end }}
+templates:
+    - '/etc/alertmanager/config/*.tmpl'
+```
