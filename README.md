@@ -243,7 +243,7 @@ We need to have rule for slack noth=fications in respective channel. Add below c
 
 global:
       resolve_timeout: 5m
-      slack_api_url: https://hooks.slack.com/services/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
+      slack_api_url: "enter_your_slack_webhook_url_here"
 route:
       group_by: ['job']
       group_wait: 30s
@@ -276,3 +276,9 @@ receivers:
 templates:
     - '/etc/alertmanager/config/*.tmpl'
 ```
+Now you will be able to see the graphs of alertmanger in the grafana dashboard. You can serach for alertmanager in the dashboard and you will able to see the below graphs.
+
+![installing helm](https://github.com/amit17133129/images/blob/main/images/images2/6.png?raw=true)
+
+
+![installing helm](https://github.com/amit17133129/images/blob/main/images/images2/7.png?raw=true)
