@@ -83,13 +83,14 @@ kubectl get all -n grafana
 
 # You will have to expose the grafana service using NodePort with the below command
 kubectl edit svc grafan -n grafana
-You have to change the Service Type from ClusterIP --> NodePort. Using your Master Node's IP with the exposed port of NodePort you can able to access the grafana server.
+You have to change the Service Type from ClusterIP --> LoadBalancer. Using your Master Node's IP with the exposed port of LoadBalancer you can able to access the grafana server.
 
 
 # When logging in, use username "admin" and get password by running the following:
 kubectl get secret --namespace grafana grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 ```
-
+You can check LoadBalancer Url with its respective ports 
+![installing helm](https://github.com/amit17133129/images/blob/main/images/images2/4.png?raw=true)
 
 # Creating Persitent Volume with AWS EC2 Volume:
 Now we have to create one ec2 volume using below aws clid command. 
