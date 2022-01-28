@@ -50,3 +50,42 @@ prometheus-node-exporter-vbdks                   1/1     Running   0          48
 prometheus-pushgateway-76c444b68c-82tnw          1/1     Running   0          48s
 prometheus-server-775957f748-mmht9               1/2     Running   0          48s
 ```
+
+You can check this prometheis running in your local dashboard with the following command
+```
+kubectl --namespace=prometheus port-forward deploy/prometheus-server 9090
+```
+
+
+
+## Installing Grafana Using Helm: 
+
+```
+# Create Namespace of grafana using below command:
+kubectl create namespace grafana
+
+# Install grafana using below command
+helm install grafana stable/grafana \
+    --namespace grafana \
+    --set persistence.storageClassName="gp2" \
+    --set persistence.enabled=true \
+    --set adminPassword='hellografana' \
+    --set datasources."datasources\.yaml".apiVersion=1 \
+    --set datasources."datasources\.yaml".datasources[0].name=Prometheus \
+    --set datasources."datasources\.yaml".datasources[0].type=prometheus \
+    --set datasources."datasources\.yaml".datasources[0].url=http://prometheus-server.prometheus.svc.cluster.local \
+    --set datasources."datasources\.yaml".datasources[0].access=proxy \
+    --set datasources."datasources\.yaml".datasources[0].isDefault=true \
+    --set service.type=LoadBalancer
+
+# Check if Grafana is deployed properly
+kubectl get all -n grafana
+
+# You will have to expose the grafana service using NodePort with the below command
+kubectl edit svc grafan -n grafana
+You have to change the Service Type from ClusterIP --> NodePort. Using your Master Node's IP with the exposed port of NodePort you can able to access the grafana server.
+
+
+# When logging in, use username "admin" and get password by running the following:
+kubectl get secret --namespace grafana grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+```
