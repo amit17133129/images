@@ -100,31 +100,51 @@ aws ec2 create-volume --availability-zone us-east-1a
 Now you have to same the volume ID somewhere. It will require while attaching pv
 
 ```
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: standard
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: gp2
+reclaimPolicy: Retain
+mountOptions:
+  - debug
+volumeBindingMode: Immediate
+```
+```
 apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: pv1
 spec:
-  storageClassName: gp2
+  accessModes:
+  - ReadWriteOnce
+  awsElasticBlockStore:
+    fsType: xfs
+    volumeID: aws://us-east-1a/<volumeID>   # Put your volume ID here
   capacity:
     storage: 10Gi
-  accessModes:
-    - ReadWriteOnce
-  awsElasticBlockStore:
-    fsType: ext4
-    volumeID: <volumeID>   # Put your volume ID here
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: gp2-retain
+  volumeMode: Filesystem
+
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
+  labels:
+    app: mysql
   name: pvc1
 spec:
-  storageClassName: gp2
   accessModes:
-    - ReadWriteOnce
+  - ReadWriteOnce
   resources:
     requests:
       storage: 10Gi
+  storageClassName: gp2-retain
+  volumeMode: Filesystem
+  volumeName: pv1
 ```
 
 Create the PV and PVC using below kubectl commands
@@ -133,4 +153,4 @@ kubectl apply -f pv.yaml        # Creating PV
 kubectl apply -f pvc.yaml       # Creating PVC
 ```
 
-
+Now we have to
