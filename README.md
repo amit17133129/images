@@ -1,4 +1,4 @@
-# Kubernetes-Volume Monitoring Using prometheus and grafana
+# Kubernetes-AWS-Volume Monitoring Using prometheus and grafana
 
 In this task i have an requiremnt to monitor the pv volumes using grafana and promtheus. 
 
