@@ -89,3 +89,48 @@ You have to change the Service Type from ClusterIP --> NodePort. Using your Mast
 # When logging in, use username "admin" and get password by running the following:
 kubectl get secret --namespace grafana grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 ```
+
+
+# Creating Persitent Volume with AWS EC2 Volume:
+Now we have to create one ec2 volume using below aws clid command. 
+```
+aws ec2 create-volume --availability-zone us-east-1a 
+
+```
+Now you have to same the volume ID somewhere. It will require while attaching pv
+
+```
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv1
+spec:
+  storageClassName: gp2
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  awsElasticBlockStore:
+    fsType: ext4
+    volumeID: <volumeID>   # Put your volume ID here
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc1
+spec:
+  storageClassName: gp2
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+```
+
+Create the PV and PVC using below kubectl commands
+```
+kubectl apply -f pv.yaml        # Creating PV
+kubectl apply -f pvc.yaml       # Creating PVC
+```
+
+
