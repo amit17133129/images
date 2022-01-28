@@ -183,3 +183,58 @@ Now when you switched to grafana and search for `pvc` in the metrics and then ex
 ![installing helm](https://github.com/amit17133129/images/blob/main/images/images2/2.png?raw=true)
 
 ![installing helm](https://github.com/amit17133129/images/blob/main/images/images2/3.png?raw=true)
+
+# Monitoring Ec2 Volumes Using AlertManager
+
+Here i am using alertmanager to send the alerts monitor the logs of the ec2 volumes using cloud-watch-exporter.
+
+You can install using below command.
+```
+# Installing Cloudwatch Exporter
+helm install cloudwatch  prometheus-community/prometheus-cloudwatch-exporter
+
+# Checking logs of Cloud-Watch exporter
+kubectl logs -f cloudwatch-prometheus-cloudwatch-exporter-545f78f77-kgrqg
+```
+
+After this you have to set the rules in the cloudwatch exporter for lack notifications. 
+```
+Slack Notification
+```
+
+Make sure that you calling the alertmanager server and its rules associated with it from the prometheus.yaml file. 
+You can go insie prometheus.yaml file and then you can add below code to enable the alert-manager and its rules.
+
+```
+# my global config
+global:
+  scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093    
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  - rules.yml"
+```
+Here how rules.yml file look alike.
+```
+# Rule for KubernetesVolumeOutOfDiskSpace
+- alert: KubernetesVolumeOutOfDiskSpace
+    expr: kubelet_volume_stats_available_bytes / kubelet_volume_stats_capacity_bytes * 100 < 20
+    for: 1m
+    labels:
+      severity: warning
+  annotations:
+         summary: Kubernetes Volume out of disk space (instance {{ $labels.instance }})
+         description: "Volume is almost full (< 20% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+```
+
+Now we have alert manager prometheus configuration  ready. We will update the respective changes in the alertmanager server.
+
