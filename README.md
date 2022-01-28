@@ -153,4 +153,27 @@ kubectl apply -f pv.yaml        # Creating PV
 kubectl apply -f pvc.yaml       # Creating PVC
 ```
 
-Now we have to
+Now we have to create pod and that pod will use the volume which we have created on aws.
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app
+spec:
+  containers:
+  - name: app
+    image: centos
+    command: ["/bin/sh"]
+    args: ["-c", "while true; do echo $(date -u) >> /data/out.txt; sleep 5; done"]     #it will write the data of date in mounted data folder
+    volumeMounts:
+    - name: persistent-storage
+      mountPath: /data
+  volumes:
+  - name: persistent-storage
+    persistentVolumeClaim:
+      claimName: pvc1
+```
+You can run the following command to create the pod.
+```
+kubectl apply -f pod.yaml
+```
