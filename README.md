@@ -177,3 +177,9 @@ You can run the following command to create the pod.
 ```
 kubectl apply -f pod.yaml
 ```
+
+Now when you switched to grafana and search for `pvc` in the metrics and then execute theose metrics then it will tell you the usage of the aws ebs volume.
+
+![installing helm](https://github.com/amit17133129/images/blob/main/images/images2/2.png?raw=true)
+
+![installing helm](https://github.com/amit17133129/images/blob/main/images/images2/3.png?raw=true)
